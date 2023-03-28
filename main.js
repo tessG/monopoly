@@ -1,45 +1,47 @@
-
+let tokenData;
+let R;
 //dimensions
     let total = 40;
-    let circleSize = 200;
+    let circleSize = 150;
     let halfW;
     let halfH;
-    let offset;
+var DEFAULT_SIZE = 1000
+var WIDTH = window.innerWidth
+var HEIGHT = window.innerHeight
+var DIM = Math.min(WIDTH, HEIGHT)
+var M = DIM / DEFAULT_SIZE
+
     let angle;
     let bgcolor;
-    let costSize = 30; // used to diminish the initial cost value - the smaller the number the bigger the field.
-    let incomeSize = 80; //used to diminish the income value - the smaller the number the bigger the field.
+    let costSize=10;//=30 // used to diminish the initial cost value - the smaller the number the bigger the field.
+    let incomeSize=150;//=100 //used to diminish the income value - the smaller the number the bigger the field.
     let playercolors = [];
   
+    const circle = [];
+    const players = [];
 
-   const circle=[];
-   const players = [];
 
-   
+    let diceValue;
     let winner = null;
-   
 
     let next = true;
-
     let newPos;
     let lastPos;
     let player;
     let recording = true;
-
-
 
     let fielddata;
     let gamedata;
     var pdf;
     let board;
 
-let run = false;
-let roundCount = 0;
-let currentPlayer;
+    let run = false;
+    let roundCount = 0;
+    let currentPlayer;
 
-  let buildingPrice = 4000;
+    let buildingPrice = 4000;
+
     function preload() {
-        
         fielddata = loadStrings('./assets/fields.txt');
         gamedata = loadStrings('./assets/data.txt');
     }
@@ -48,24 +50,34 @@ let currentPlayer;
 
 
     function setup() {
-        var myCanvas = createCanvas(500, 500);
+        var myCanvas =  createCanvas(WIDTH, HEIGHT);
         myCanvas.parent("monopolyJS");
-        bgcolor = color(160, 130,91);
+
+         tokenData = {
+            hash: "0x11ac16678959949c12d5410212301960fc496813cbc3495bf77aeed738579738",
+            tokenId: "123000456"
+        };//genTokenData(123);
+
+        R =  new Random();
+
+        bgcolor = color(0);
         halfW = width / 2;
         halfH = height / 2;
-        offset = halfW; 
-        angle = TWO_PI / (total * 20);  
-    
+        angle = TWO_PI / (total * 20);
+       // costSize  =R.random_int(5,20);
+       // incomeSize=R.random_int(120,160);
         playercolors[0] = color(255, 0, 0);
         playercolors[1] = color(0, 0, 255);
         playercolors[2] = color(255, 255, 0);
-        playercolors[3] = color(0, 255, 0);
+        playercolors[3] = color(255);//color(0, 255, 0);
         playercolors[4] = color(0);
         playercolors[5] = color(255);
         board = new Board();
         board.createFields(fielddata);
-       background(160, 130,91);
-        drawBoard();
+        background(bgcolor);
+        createBoardLayout("circular");
+        renderFields();
+       // drawBoard();
         setupPlayers(gamedata);
     }
 
@@ -77,6 +89,8 @@ function keyPressed() {
   }
 }
 
+//let targetX;
+//let targetY;
 
 
     function draw() {
@@ -97,13 +111,16 @@ function keyPressed() {
                    endGame();
                    noLoop();
                 }
-                drawBoard();
+                renderFields();
+               // drawBoard();
             }else if(!game_ended){
                 animateMove();
-                lastPos++;
+
+                 lastPos++;
            }else{//game ended draw for print
                 background(bgcolor);
-                 drawBoard();
+                renderFields();
+                // drawBoard();
                  renderPlayers();
            }
     }
@@ -119,10 +136,9 @@ function doTurn(){
         if(leavingField instanceof Visit ){
             decisionRequest = leavingField.onLeave();
             f = leavingField;
-
         }
         if(currentPlayer.isfree()){
-            diceValue = getDiceValue();//board.getDice().throwDice();
+            diceValue = R.random_int(1, 12);
             currentPosition =  currentPlayer.updatePosition(diceValue);
             f = board.getField(currentPosition);
             decisionRequest = f.onLand();
@@ -145,25 +161,46 @@ function doTurn(){
         }
     }
 
-  function drawBoard() {
-    
-        
+ /* function drawBoard() {
         for (let i = 0; i < total; i++) {
             placeShapeAtAngle(i, circleSize);
             f = board.getField(i + 1);
             f.render(circle[i].x, circle[i].y);
+          //  f.render(layout[i].x, layout[i].y);
         }
+    }*/
+function renderFields(){
+    for (let i = 0; i < total; i++) {
+        f = board.getField(i + 1);
+        f.render(circle[i].x, circle[i].y);
     }
 
 
+}
+function createBoardLayout(type) {
+    for (let i = 0; i < total; i++) {
+    switch (type) {
+        case "circular":
+
+        placeShapeAtAngle(i, circleSize);
+
+    break;
+        case "random":
+
+            circle[i] = createVector(R.random_num(0, width), R.random_num(0, height));
+
+            break
+        case "spiral":break;
+        case "grid":break;
+    }
+}
+}
 
     function placeShapeAtAngle( i, centerProx) {
         let angle = TWO_PI /  total;
-        let x1 = offset + centerProx * sin(angle * i);
-        let y1 = offset - centerProx * cos(angle * i);
+        let x1 = halfW + centerProx * sin(angle * i);
+        let y1 = halfH - centerProx * cos(angle * i);
         circle[i] = createVector(x1, y1);
-
-
     }
 
    
@@ -189,17 +226,22 @@ function doTurn(){
         }
         player.resetProperties();
     }
-    function getDiceValue(){
-        return Math.floor(Math.random() * 12)+1;
-    }
-    function animateMove() {
 
-      let targetX = offset + circleSize * sin(angle * map(lastPos, 0, total, 0, total * 20));
-      let targetY = offset - circleSize * cos(angle * map(lastPos, 0, total, 0, total * 20));
- 
-      if (Math.round(targetX) == Math.round(circle[newPos-1].x) && Math.round(targetY) == Math.round(circle[newPos-1].y)) {
-           
-          next = true;
+   // let pct=0;
+    function animateMove() {
+//todo: change this method so that the targets are calculated using
+        //create a  vector between lastPos and newPos
+        // move target incrementally along the line of that vector until target is the same
+      let targetX = halfW+ circleSize * sin(angle * map(lastPos, 0, total, 0, total * 20));
+      let targetY = halfH - circleSize * cos(angle * map(lastPos, 0, total, 0, total * 20));
+
+      //  pct+=0.01;
+
+
+        if (Math.round(targetX) == Math.round(circle[newPos-1].x) && Math.round(targetY) == Math.round(circle[newPos-1].y)) {
+
+           // pct=0;
+            next = true;
       }
 
       currentPlayer.setPiecePosition(targetX, targetY);
@@ -233,7 +275,6 @@ function doTurn(){
 
     function renderPlayers() {
       players.forEach(function(p){
-          
                 p.render();
         });
 
@@ -421,12 +462,10 @@ class Board {
             let cost = parseInt(fieldData[3].trim());  
             let income = parseInt(fieldData[4].trim());
             let seriesID = parseInt(fieldData[5].trim());
-
-             let field;
+            let field;
             
             switch (fieldType) {
                 case 'Start':
-                   
                     field = new Start(id, label, income);
                     break;
                 case "Plot":
@@ -489,7 +528,9 @@ class Field {
         this.cost = cost;
         this.income = income;
         this.currentOption ="";
-        this.fieldsize = 40;
+        this.fieldsize = 20;
+        this.x = 0
+        this.y = 0;
     }
  
     
@@ -671,6 +712,8 @@ class Property extends Field {
         }
            
         ellipse(x,y, this.cost/costSize+_income/incomeSize, this.cost/costSize+_income/incomeSize);
+       this.x = x
+       this.y = y;
     }
 
   setDefaultColor(){
@@ -682,17 +725,17 @@ class Property extends Field {
     setOwnerColor() {
         this.color._array[3] =.2;
         fill(this.color);
-        strokeWeight(2);
+        strokeWeight(1);
         stroke(this.owner.getColor());
       
     }
 
       setMonopolyColor() {
-        strokeWeight(8);
+        strokeWeight(4);
         stroke(this.owner.getColor());
-        this.owner.getColor()._array[3] =.3;
+        this.owner.getColor()._array[3] =.3;//setting alpha
         fill(this.owner.getColor());
-        this.owner.getColor()._array[3]= 1;
+        this.owner.getColor()._array[3]= 1;//setting alpha
     }
    
 
@@ -813,6 +856,7 @@ class Plot extends Property {
                    this.houses[i].render();
             }
         }
+
     }
 
 
@@ -837,9 +881,9 @@ class Brewery extends Property {
     getIncome() {
        
         if (super.getIsMonopolised()) {
-            return (super.getIncome()*2)*getDiceValue();
+            return (super.getIncome()*2)*diceValue;
         }
-        return super.getIncome()*getDiceValue();
+        return super.getIncome()*diceValue;
     }
 
 
@@ -905,6 +949,8 @@ class Consequence extends Field {
 
     
     render(x,y){
+        this.x= x;
+        this.y = y;
         ellipse(x,y,super.getSize(),super.getSize());
     }
 
@@ -1076,10 +1122,10 @@ class Building{
       if(this.id > 4 ){
           this.size = 30;
       }
-       let maxX= circle[plot.getId()-1].x+ plot.getSize()/2; 
-        let minX= circle[plot.getId()-1].x- plot.getSize()/2;
-        let maxY= circle[plot.getId()-1].y+ plot.getSize()/2;
-        let minY= circle[plot.getId()-1].y- plot.getSize()/2;
+        let maxX = plot.x+plot.getSize()/2; //circle[plot.getId()-1].x + plot.getSize()/2;//
+        let minX = plot.x-plot.getSize()/2;//circle[plot.getId()-1].x - plot.getSize()/2;
+        let maxY = plot.y+plot.getSize()/2;//circle[plot.getId()-1].y + plot.getSize()/2;
+        let minY = plot.y-plot.getSize()/2;// circle[plot.getId()-1].y - plot.getSize()/2;
 
         this.randomx = random(minX-this.size,maxX+this.size);
         this.randomy = random(minY-this.size,maxY+this.size);
@@ -1135,4 +1181,58 @@ class BankAccount {
     }
 
     
+}
+function genTokenData(projectNum) {
+    let data = {};
+    let hash = "0x";
+    for (var i = 0; i < 64; i++) {
+        hash += Math.floor(Math.random() * 16).toString(16);
+    }
+    data.hash = hash;
+    data.tokenId = (projectNum * 1000000 + Math.floor(Math.random() * 1000)).toString();
+    return data;
+}
+
+class Random {
+    constructor() {
+        this.useA = false;
+        let sfc32 = function (uint128Hex) {
+            let a = parseInt(uint128Hex.substr(0, 8), 16);
+            let b = parseInt(uint128Hex.substr(8, 8), 16);
+            let c = parseInt(uint128Hex.substr(16, 8), 16);
+            let d = parseInt(uint128Hex.substr(24, 8), 16);
+            return function () {
+                a |= 0; b |= 0; c |= 0; d |= 0;
+                let t = (((a + b) | 0) + d) | 0;
+                d = (d + 1) | 0;
+                a = b ^ (b >>> 9);
+                b = (c + (c << 3)) | 0;
+                c = (c << 21) | (c >>> 11);
+                c = (c + t) | 0;
+                return (t >>> 0) / 4294967296;
+            };
+        };
+        // seed prngA with first half of tokenData.hash
+        this.prngA = new sfc32(tokenData.hash.substr(2, 32));
+        // seed prngB with second half of tokenData.hash
+        this.prngB = new sfc32(tokenData.hash.substr(34, 32));
+        for (let i = 0; i < 1e6; i += 2) {
+            this.prngA();
+            this.prngB();
+        }
+    }
+    // random number between 0 (inclusive) and 1 (exclusive)
+    random_dec() {
+        this.useA = !this.useA;
+        return this.useA ? this.prngA() : this.prngB();
+    }
+    // random number between a (inclusive) and b (exclusive)
+    random_num(a, b) {
+        return a + (b - a) * this.random_dec();
+    }
+    // random integer between a (inclusive) and b (inclusive)
+    // requires a < b for proper probability distribution
+    random_int(a, b) {
+        return Math.floor(this.random_num(a, b + 1));
+    }
 }
