@@ -2,7 +2,7 @@ let tokenData;
 let R;
 //dimensions
     let total = 40;
-    let circleSize = 150;
+    let circleSize = 210;
     let halfW;
     let halfH;
 var DEFAULT_SIZE = 1000
@@ -13,8 +13,8 @@ var M = DIM / DEFAULT_SIZE
 
     let angle;
     let bgcolor;
-    let costSize=10;//=30 // used to diminish the initial cost value - the smaller the number the bigger the field.
-    let incomeSize=150;//=100 //used to diminish the income value - the smaller the number the bigger the field.
+    let costSize=30;//=30 // used to diminish the initial cost value - the smaller the number the bigger the field.
+    let incomeSize=100;//=100 //used to diminish the income value - the smaller the number the bigger the field.
     let playercolors = [];
   
     const circle = [];
@@ -53,10 +53,12 @@ var M = DIM / DEFAULT_SIZE
         var myCanvas =  createCanvas(WIDTH, HEIGHT);
         myCanvas.parent("monopolyJS");
 
-         tokenData = {
+         /*tokenData = {
             hash: "0x11ac16678959949c12d5410212301960fc496813cbc3495bf77aeed738579738",
             tokenId: "123000456"
-        };//genTokenData(123);
+        };*/
+        tokenData = genTokenData(123);
+
 
         R =  new Random();
 
