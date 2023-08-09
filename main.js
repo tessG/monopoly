@@ -141,7 +141,7 @@ function doTurn(){
             f = leavingField;
         }
         if(currentPlayer.isfree()){
-            diceValue = getDiceValue();//Use this instead if art should be recreatable: R.random_int(1, 12);
+            diceValue = Math.floor(Math.random() * 12)+1;//Use this instead if art should be recreatable: R.random_int(1, 12);
             currentPosition =  currentPlayer.updatePosition(diceValue);
             f = board.getField(currentPosition);
             decisionRequest = f.onLand();
