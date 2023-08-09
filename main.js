@@ -62,7 +62,7 @@ var M = DIM / DEFAULT_SIZE
 
         R =  new Random();
 
-        bgcolor = color(0);
+        bgcolor = color(255);//color(160,131,90);
         halfW = width / 2;
         halfH = height / 2;
         angle = TWO_PI / (total * 20);
@@ -96,10 +96,11 @@ function keyPressed() {
 
 
     function draw() {
+
         if(run){
 
             if (next == true ) {
-                 background(bgcolor);
+                 background(bgcolor,frameCount%255);
                 next = false;
                 roundCount++;
                 currentPlayer = getNextPlayer();
@@ -114,15 +115,15 @@ function keyPressed() {
                    noLoop();
                 }
                 renderFields();
-               // drawBoard();
+               
             }else if(!game_ended){
                 animateMove();
 
                  lastPos++;
            }else{//game ended draw for print
-                background(bgcolor);
+                background(bgcolor,frameCount%255);
                 renderFields();
-                // drawBoard();
+                
                  renderPlayers();
            }
     }
@@ -140,7 +141,7 @@ function doTurn(){
             f = leavingField;
         }
         if(currentPlayer.isfree()){
-            diceValue = R.random_int(1, 12);
+            diceValue = getDiceValue();//Use this instead if art should be recreatable: R.random_int(1, 12);
             currentPosition =  currentPlayer.updatePosition(diceValue);
             f = board.getField(currentPosition);
             decisionRequest = f.onLand();
