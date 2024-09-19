@@ -5,11 +5,11 @@ let R;
     let circleSize = 210;
     let halfW;
     let halfH;
-var DEFAULT_SIZE = 1000
-var WIDTH = window.innerWidth
-var HEIGHT = window.innerHeight
-var DIM = Math.min(WIDTH, HEIGHT)
-var M = DIM / DEFAULT_SIZE
+    var DEFAULT_SIZE = 1000
+    var WIDTH = window.innerWidth
+    var HEIGHT = window.innerHeight
+    var DIM = Math.min(WIDTH, HEIGHT)
+    var M = DIM / DEFAULT_SIZE
 
     let angle;
     let bgcolor;
@@ -58,7 +58,8 @@ var M = DIM / DEFAULT_SIZE
             tokenId: "123000456"
         };*/
         tokenData = genTokenData(123);
-
+        textSize(22);
+        text("Press to run, pause and continue",width/2, height/2);
 
         R =  new Random();
 
@@ -91,8 +92,6 @@ function keyPressed() {
   }
 }
 
-//let targetX;
-//let targetY;
 
 
     function draw() {
@@ -141,7 +140,9 @@ function doTurn(){
             f = leavingField;
         }
         if(currentPlayer.isfree()){
-            diceValue = Math.floor(Math.random() * 12)+1;//Use this instead if art should be recreatable: R.random_int(1, 12);
+            diceValue = Math.floor(Math.random() * 12)+1;
+            //Use this instead if art should be recreatable:
+            //diceValue = R.random_int(1, 12);
             currentPosition =  currentPlayer.updatePosition(diceValue);
             f = board.getField(currentPosition);
             decisionRequest = f.onLand();
