@@ -87,9 +87,13 @@ let R;
 function keyPressed() {
   if (keyCode === 83) { // if "s" is pressed
     saveForPrint("sketch.jpg", "A3", 300,10);
-  }else if (keyCode === 82) { // if "s" is pressed
+  }/*else if (keyCode === 82) { // if "r" is pressed
     run = !run;
-  }
+  }*/
+}
+function mousePressed(){
+        run = !run;
+
 }
 
 
