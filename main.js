@@ -58,8 +58,6 @@ let R;
             tokenId: "123000456"
         };*/
         tokenData = genTokenData(123);
-        textSize(22);
-        text("Press to run, pause and continue",width/2, height/2);
 
         R =  new Random();
 
@@ -130,6 +128,10 @@ function mousePressed(){
                  renderPlayers();
            }
     }
+        textSize(22);
+        stroke(1);
+        text("Press to run, pause and continue",width/2, height/2);
+        noStroke();
  }
 
 
