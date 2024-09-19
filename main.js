@@ -2,7 +2,7 @@ let tokenData;
 let R;
 //dimensions
     let total = 40;
-    let circleSize = 210;
+    let circleSize = 400;
     let halfW;
     let halfH;
     var DEFAULT_SIZE = 1000
@@ -13,8 +13,8 @@ let R;
 
     let angle;
     let bgcolor;
-    let costSize=30;//=30 // used to diminish the initial cost value - the smaller the number the bigger the field.
-    let incomeSize=100;//=100 //used to diminish the income value - the smaller the number the bigger the field.
+    let costSize=15;//=30 // used to diminish the initial cost value - the smaller the number the bigger the field.
+    let incomeSize=40;//=100 //used to diminish the income value - the smaller the number the bigger the field.
     let playercolors = [];
   
     const circle = [];
@@ -35,11 +35,12 @@ let R;
     var pdf;
     let board;
 
-    let run = false;
+    let run = true;
     let roundCount = 0;
     let currentPlayer;
 
     let buildingPrice = 4000;
+    let msg="pause";
 
     function preload() {
         fielddata = loadStrings('./assets/fields.txt');
@@ -90,18 +91,27 @@ function keyPressed() {
   }*/
 }
 function mousePressed(){
-        run = !run;
+        msg = msg=="pause"?"continue":"pause";
 
 }
 
+function mouseReleased(){
 
+    run = !run;
+
+}
 
     function draw() {
 
         if(run){
 
             if (next == true ) {
-                 background(bgcolor,frameCount%255);
+                background(bgcolor,frameCount%255);
+
+                fill(0);
+                noStroke();
+                textSize(12);
+                text("Touch to \n"+msg,30, 30);
                 next = false;
                 roundCount++;
                 currentPlayer = getNextPlayer();
@@ -124,14 +134,17 @@ function mousePressed(){
            }else{//game ended draw for print
                 background(bgcolor,frameCount%255);
                 renderFields();
-                
-                 renderPlayers();
+                renderPlayers();
            }
-    }
-        textSize(22);
-        stroke(1);
-        text("Press to run, pause and continue",width/2, height/2);
-        noStroke();
+
+    }else{
+           // background(bgcolor,frameCount%255);
+
+
+        }
+
+
+
  }
 
 
@@ -728,24 +741,25 @@ class Property extends Field {
 
   setDefaultColor(){
         noStroke();     
-         this.color._array[3] =.2;
+         this.color._array[3] =.4;
          fill(this.color);   
     }
   
     setOwnerColor() {
-        this.color._array[3] =.2;
+        this.owner.getColor()._array[3] =.4;
         fill(this.color);
-        strokeWeight(1);
+        strokeWeight(3);
         stroke(this.owner.getColor());
       
     }
 
-      setMonopolyColor() {
-        strokeWeight(4);
-        stroke(this.owner.getColor());
-        this.owner.getColor()._array[3] =.3;//setting alpha
-        fill(this.owner.getColor());
-        this.owner.getColor()._array[3]= 1;//setting alpha
+    setMonopolyColor() {
+        this.owner.getColor()._array[3]= .3;//setting alpha
+      //  fill(this.owner.getColor());
+          fill(this.owner.getColor());
+          strokeWeight(10);
+          stroke(this.color);
+
     }
    
 
