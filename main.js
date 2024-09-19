@@ -62,7 +62,7 @@ let R;
 
         R =  new Random();
 
-        bgcolor = color(255);//color(160,131,90);
+        bgcolor = color(0);//color(160,131,90);//color(255);//color(160,131,90);
         halfW = width / 2;
         halfH = height / 2;
         angle = TWO_PI / (total * 20);
@@ -92,7 +92,6 @@ function keyPressed() {
 }
 function mousePressed(){
         msg = msg=="pause"?"continue":"pause";
-
 }
 
 function mouseReleased(){
