@@ -13,8 +13,8 @@ let R;
 
     let angle;
     let bgcolor;
-    let costSize=15;//=30 // used to diminish the initial cost value - the smaller the number the bigger the field.
-    let incomeSize=40;//=100 //used to diminish the income value - the smaller the number the bigger the field.
+    let costSize=30;//=30 // used to diminish the initial cost value - the smaller the number the bigger the field.
+    let incomeSize=100;//=100 //used to diminish the income value - the smaller the number the bigger the field.
     let playercolors = [];
   
     const circle = [];
@@ -86,27 +86,20 @@ let R;
 function keyPressed() {
   if (keyCode === 83) { // if "s" is pressed
     saveForPrint("sketch.jpg", "A3", 300,10);
-  }/*else if (keyCode === 82) { // if "r" is pressed
-    run = !run;
-  }*/
+  }
 }
 function mousePressed(){
         msg = msg=="pause"?"continue":"pause";
 }
 
 function mouseReleased(){
-
     run = !run;
-
 }
 
     function draw() {
-
         if(run){
-
             if (next == true ) {
                 background(bgcolor,frameCount%255);
-
                 fill(0);
                 noStroke();
                 textSize(12);
@@ -134,16 +127,8 @@ function mouseReleased(){
                 background(bgcolor,frameCount%255);
                 renderFields();
                 renderPlayers();
-           }
-
-    }else{
-           // background(bgcolor,frameCount%255);
-
-
-        }
-
-
-
+       }
+    }
  }
 
 
@@ -151,7 +136,6 @@ function mouseReleased(){
 function doTurn(){
         let f = null;
         decisionRequest = null;
-
         leavingField = board.getField(currentPlayer.getPosition());
         if(leavingField instanceof Visit ){
             decisionRequest = leavingField.onLeave();
@@ -282,17 +266,13 @@ function createBoardLayout(type) {
     let game_ended = false;
     
     function endGame() {
-       
         if(!game_ended){
-            
             winner = players[0].getName();
             console.log("the winner is... \n" + winner);           
             game_ended = true;
             currentPlayer = winner;
-            saveForPrint("final.jpg", "A2", 300,0);        
-            
+            saveForPrint("final.jpg", "A2", 300,0);
         }
-
     }
 
     function renderPlayers() {
@@ -621,6 +601,7 @@ class Property extends Field {
         }
 
          this.color = col;
+         this.color._array[3] =.2;
     }
    
 
@@ -719,13 +700,9 @@ class Property extends Field {
         return true;
     }
 
-
-
-
-
    render(x,  y, _income) {
        if(this.owner != null){
-           this.setOwnerColor();
+           this.setOwnedColor();
            if (this.getIsMonopolised()) {
               this.setMonopolyColor();
             }
@@ -733,34 +710,33 @@ class Property extends Field {
               this.setDefaultColor();
         }
            
-        ellipse(x,y, this.cost/costSize+_income/incomeSize, this.cost/costSize+_income/incomeSize);
+       ellipse(x,y, this.cost/costSize+_income/incomeSize, this.cost/costSize+_income/incomeSize);
        this.x = x
        this.y = y;
     }
 
-  setDefaultColor(){
-        noStroke();     
+    setDefaultColor(){
+         noStroke();
          this.color._array[3] =.4;
          fill(this.color);   
     }
-  
-    setOwnerColor() {
-        this.owner.getColor()._array[3] =.4;
-        fill(this.color);
-        strokeWeight(3);
-        stroke(this.owner.getColor());
-      
+    setOwnedColor() {
+        //the field maintains its original color, stroke gets the owners
+        this.setColor(true, this.color, this.owner.getColor(), 3, this.color._array[3] );
     }
 
     setMonopolyColor() {
-        this.owner.getColor()._array[3]= .3;//setting alpha
-      //  fill(this.owner.getColor());
-          fill(this.owner.getColor());
-          strokeWeight(10);
-          stroke(this.color);
-
+        //the field switches color to that of the owner, the stroke gets the fields's original color
+        this.setColor(true, this.owner.getColor(), this.color, 20, this.color._array[3] +.2 );
     }
-   
+    setColor(hasStroke, fillColor, strokeColor, strokeW, alpha ){
+        fillColor._array[3]=alpha;
+        fill(fillColor);
+        if(hasStroke){
+            strokeWeight(strokeW);
+            stroke(strokeColor);
+        }
+    }
 
     getOwner() {
         return this.owner;
