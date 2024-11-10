@@ -99,7 +99,7 @@ function mouseReleased(){
     function draw() {
         if(run){
             if (next == true ) {
-                background(bgcolor,frameCount%255);
+                background(bgcolor,frameCount%200);
                 fill(0);
                 noStroke();
                 textSize(12);
@@ -492,7 +492,8 @@ class Board {
                     field = new Visit(id, label);
                     break;
                 case "Parking":
-                    field = new Consequence(id, label, 0, 0);
+                   // field = new Consequence(id, label, 0, 0);
+                    field = new Field(id, label, 0, 0);
                     break;
                 default:
                      console.log("no such type found")
@@ -523,8 +524,8 @@ class Board {
 
 
 class Field {
-  
-    
+
+
     constructor(id, label, cost, income) {
         this.id = id;
         this.cost = cost;
@@ -534,9 +535,11 @@ class Field {
         this.x = 0
         this.y = 0;
     }
- 
-    
-    
+
+
+    onLand(){
+        this.currentOption = null;
+    }
     processesResponse(response, currentPlayer) {
        
         if(response.toLowerCase()=="n"){
@@ -571,11 +574,16 @@ class Field {
     getSize(){
         return this.fieldsize;
     }
+    render(x,y){
+        this.x= x;
+        this.y = y;
+        ellipse(x,y,this.getSize(),this.getSize());
+    }
 }
 
 
 class Property extends Field {
-   
+
         constructor(id, label, cost, income, seriesID){
         super(id, label, cost, income);
         this.seriesID = seriesID;
@@ -935,35 +943,9 @@ class ShippingLine extends Property {
 }
 
 
-class Consequence extends Field {
-
-    constructor(id, label, cost=0, income=0) {
-        super(id, label, cost, income);
-    }
 
 
-    onLand(){
-        super.currentOption = null;
-    }
-
-    
-    render(x,y){
-        this.x= x;
-        this.y = y;
-        ellipse(x,y,super.getSize(),super.getSize());
-    }
-
-    getCost(){
-        return super.getCost();
-    }
-     getIncome(){
-        return super.getIncome();
-    }
-
-
-}
-
-class Tax extends Consequence {
+class Tax extends Field {
 
     
     onLand(){
@@ -1003,14 +985,13 @@ render(x, y) {
     }
 }
 
-class Prison extends Consequence {
+class Prison extends Field {
 
     render(x, y) {
         noStroke();
         fill(249,7,245);
         super.render(x,y);
     }
-
  
    onLand() {
         if(currentPlayer.getBailCard()!=false) {
@@ -1020,8 +1001,6 @@ class Prison extends Consequence {
 
         }
     }
-
-
 
     onAccept() {
 
@@ -1040,9 +1019,8 @@ class Prison extends Consequence {
 }
 
 
-class Chance extends Consequence {
-    
-    
+class Chance extends Field {
+
    onLand(){
         super.onLand();
         
@@ -1056,7 +1034,7 @@ class Chance extends Consequence {
     }
 }
 
-class Start extends Consequence {
+class Start extends Field {
    constructor(id, label, income) {
         super(id, label, 0,income);
         
@@ -1066,7 +1044,6 @@ class Start extends Consequence {
             currentPlayer.recievePayment(super.getIncome());
             super.setOption(null);
         }
-       
     } 
 
    render(x, y){
@@ -1074,7 +1051,7 @@ class Start extends Consequence {
         super.render(x,y);
     }
 }
-class Visit extends Consequence {
+class Visit extends Field {
     constructor(id, label) {
         super(id, label, 0, 0);
     }
@@ -1089,11 +1066,8 @@ onLeave() {
         if(!currentPlayer.isfree()) {        
             super.currentOption = "DoubleDice";
         }
-       
     }
-   onAccept(){
-      
-    }
+
    
     onReject(){
       let bail = board.getField(31).getCost();
@@ -1109,10 +1083,7 @@ onLeave() {
 
 
 class Building{
-  
-    
     constructor(plot,id) {
-
       this.id = id;
       this.size = 15;
       this.price = 4000;
@@ -1157,7 +1128,6 @@ class BankAccount {
 
     doTransaction(amount){
         if (amount<0) {
-           
             if (this.sufficientFunds(amount)) {
                 this.balance += amount; // same as balance = balance+ amount;
                 return true;
